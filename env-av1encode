@@ -1,0 +1,11 @@
+## Example env vars for av1encode script
+
+TRANSCODE_DIR="/media/transcoding/"                        # Directory on local system to store transcoded files
+VERBOSITY=2                                                # 0=silent, 1=errors, 2=warnings, 3=info, 4=debug
+LOG_TO_FILE=true                                           # true, false
+LOG_FILE="/media/av1encode.log"                            # File to log to
+TRANSCODE_FAIL_ACTION=exit                                 # exit, keep_local_and_exit, keep_local_and_continue
+RSYNC_SEND_FAIL_ACTION=keep_local_and_exit                 # exit, keep_local_and_exit, keep_local_and_continue
+RSYNC_RECEIVE_FAIL_ACTION=exit                             # exit, continue
+RSYNC_SEND_FAIL_LIST="/mnt/media/rsync_faillist.txt"       # File to store rsync send fail list
+LOCAL_FILE_EXISTS_ACTION=overwrite                         # delete, overwrite (alias of delete), keep_local

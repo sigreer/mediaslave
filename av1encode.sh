@@ -519,7 +519,11 @@ case "$command" in
         fi
         ;;
     *)
-        echo "Usage: av1encode {generate <dir> | convert [--starts-with=x] | convertfile <filepath> | convertdir <directory>}"
+        echo "Usage:"
+        echo "av1encode generate <dir>            # Generates master file list based on env vars"
+        echo "av1encode convert [--starts-with=x] # Converts from master file list with optional prefix filter"
+        echo "av1encode convertfile <file>        # Converts a single file"
+        echo "av1encode convertdir <directory>    # Converts all unconverted video files found in the specified directory."
         exit 1
         ;;
 esac

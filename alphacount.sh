@@ -67,25 +67,8 @@ count_directories_and_av1() {
         if [[ "$show_duplicates" == "--show-duplicates" && av1_files_count -gt 1 ]]; then
             duplicate_dirs+=("$subdir")
         fi
-
-        # # Check for non-AV1 video files with the same basename
-        # video_files=$(find "$subdir" -maxdepth 1 -type f \( -iname "*.mkv" -o -iname "*.avi" -o -iname "*.mp4" \) ! -iname "*AV1.mp4")
-        # declare -A basename_count
-        # for file in $video_files; do
-        #     basename=$(basename "$file" | sed 's/\.[^.]*$//')
-        #     ((basename_count["$basename"]++))
-        # done
-
-        # # New logic to find directories with original files and converted AV1 files
-        # for basename in "${!basename_count[@]}"; do
-        #     if (( basename_count["$basename"] > 0 )) && ls "$subdir/$basename"*AV1.mp4 1>/dev/null 2>&1; then
-        #         non_av1_duplicate_dirs+=("$subdir")
-        #         break
-        #     fi
-        # done
     done
-
-    # Ensure the final output is on a new line
+    
     echo ""
 
     # Sort the keys, ensuring "non-alphanumeric" is at the end

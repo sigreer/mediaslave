@@ -1,0 +1,13 @@
+services:
+  radarr2realdebrid:
+    container_name: radarr2realdebrid
+    build: .
+    user: "568"  # Run as user with UID 568
+    volumes:
+      - /mnt/media/torrents/blackhole/radarr/torrentfiles:/data/torrentfiles
+      - /mnt/media/torrents/blackhole/radarr/downloaded-torrents:/data/downloaded-torrents
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - REALDEBRID_APIKEY=${REALDEBRID_APIKEY}

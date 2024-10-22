@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build rdb blackhole image
-      run: docker build . --file Dockerfile --tag  realdebrid-blackhole:0.1.0
+      run: docker build realdebrid-blackhole --file realdebrid-blackhole/Dockerfile --tag realdebrid-blackhole:0.1.0

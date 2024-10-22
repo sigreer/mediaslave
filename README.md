@@ -1,12 +1,28 @@
-# mediaslave-scripts
+# Mediaslave
 
 ## Overview
 
-Various shell and python scripts for automating the management and transcoding of video files for media servers.
+A bundle of utilities to help automate, download, transcode and monitor media as part of your burgeoning media server. This repo began life as a couple of shell scripts used to move media files from one directory to another. They've now expanded into a set of utilities that I use when working on my own or other people's media servers.
 
-## Script Details
+## Main Functions
 
-### alphacount.sh
+### Real Debrid Blackhole
+
+A Docker container that watches a bind-mounted directory and automatically downloads any torrentfiles added to the directory using Real Debrid's torrent download facility through their API. If using Radarr or Sonarr, you can use this container as a blackhole destination for downloaded torrents. Torrent files will be automatically processed once downloaded, and moved to their permanent destination. **Full documentation will be added to the sub-directory README.md file in due course**.
+
+### Get-iPlayer Plus
+
+A set of scripts that make use of the ``get_iplayer`` cli tool to automate the downloading, tagging, transcoding and relocating of files from the BBC's iPlayer website.
+
+### AV1encode
+
+A fully-automated bulk transcoding script set. Although there are many different tools that attempt the same thing or something very similar, I found that there was a management overhead in organising media so that it could be transcoded efficiently. The core script uses Jellyfin's custom ``ffmpeg`` binary, ``libsvtav1`` AV1 codec and ``libopus`` audio library to transcode media files into ultra-slim, high quality files. Working with libraries of tens of thousands of files in some cases, the script can transcode files according to wide range of filters, presets and other options.
+
+Although fully functional and extremely useful in their own right, there are a number of other scripts that are used to gain insight into the overall state of the library, the progress that's been made transcoding files, various stats and also helper scripts to automate the movement of files into their correct locations.
+
+### AV1encode Script Details (in alphabetical order)
+
+#### alphacount.sh
 
 Counts the number of directories and files in a directory, and groups them by the first letter of the directory name. Lists AV1 transcoded files, non-transcoded files, duplicated files and totals for each character prefix as well as for the whole directory. 
 
@@ -27,13 +43,13 @@ Was written specifically to work with the directory structure of a movie library
 Directories containing AV1 mp4 files: 2646/5712 (46%)
 ```
 
-### av1encode.sh
+#### av1encode.sh
 
 A fully-automated bulk transcoding script. Allows for various filters, presets and other options, and can be run on multiple nodes simultaneously to create AV1-encoded video files.
 
 Requires a suitable build of ``ffmpeg``. The script calls Jellyfin's custom binary as ``ffmpeg-av1``. Other dependencies include ``libsvtav1`` and ``libopus``.
 
-#### Usage
+##### Usage
 
 ```bash
 av1encode generate <dir>            # Generates master file list based on env vars"
@@ -42,7 +58,7 @@ av1encode convertfile <file>        # Converts a single file"
 av1encode convertdir <directory>    # Converts all unconverted video files found in the specified directory."
 ```
 
-#### Example Job Output
+##### Example Job Output
 
 ```bash
 Processing file 12/36
@@ -54,7 +70,7 @@ Encoding with progress bar...
 394MiB 0:03:50 [1.32MiB/s] [==============>                             ]  36% ETA 0:06:05
 ```
 
-### countagain.sh
+#### countagain.sh
 
 Generates bulk conversion stats and provides lists of files in CSV format.
 
@@ -83,22 +99,18 @@ countagain /mnt/media/libraries/movies /mnt/media                               
 -------------------------------------------------------
 ```
 
-### crossmove.sh
+#### crossmove.sh
 
 Cross-references files in a directory with the transcode log CSV file, and moves the files to the correct location.
 
-### hardlinkreplace.sh
+#### hardlinkreplace.sh
 
 Was used for a specific use case. Deletes hard links without removing files and then creates new hard links in the target directory.
 
-### iplayergrab.sh
-
-Uses get_iplayer to download TV shows, movies and radio shows from the BBC iPlayer website and manages the post-processing of the files.
-
-### jellydirformatter.sh
+#### jellydirformatter.sh
 
 Comprehensive directory formatting script used to organise media files for Jellyfin, but is platform agnostic.
 
-### vidcheck.sh
+#### vidcheck.sh
 
 Checks the integrity of video files with ffmpeg.

@@ -1,13 +1,15 @@
 services:
-  radarr2realdebrid:
-    container_name: radarr2realdebrid
-    build: .
-    user: "568"  # Run as user with UID 568
+  realdebrid-blackhole:
+    container_name: realdebrid-blackhole
+    image: ghcr.io/sigreer/realdebrid-blackhole:latest
+    user: "568"
     volumes:
-      - /mnt/media/torrents/blackhole/radarr/torrentfiles:/data/torrentfiles
-      - /mnt/media/torrents/blackhole/radarr/downloaded-torrents:/data/downloaded-torrents
+      - ${HOST_TORRENTFILE_DIR}:${CONTAINER_TORRENTFILE_DIR}
+      - ${HOST_OUTPUT_DIR}:${CONTAINER_OUTPUT_DIR}
     restart: unless-stopped
     env_file:
-      - ./.env
+      - .env
     environment:
       - REALDEBRID_APIKEY=${REALDEBRID_APIKEY}
+      - CONTAINER_TORRENTFILE_DIR=${CONTAINER_TORRENTFILE_DIR}
+      - CONTAINER_OUTPUT_DIR=${CONTAINER_OUTPUT_DIR}

@@ -12,18 +12,20 @@ if ! command -v transmission-show &> /dev/null; then
     exit 1
 fi
 declare magnet
-# Source .env file if it exists
-if [ -f "$HOME/.env-torrent2debrid" ]; then
+
+# Source .env file if it exists.
+# This is not necessary if using the script with Docker
+if [ -f ".env" ]; then
     echo "Sourcing .env file"
-    source "$HOME/.env-torrent2debrid"
+    source ".env"
 fi
 
-if [ -n "$OUTPUT_DIR" ]; then
-    download_dir="${OUTPUT_DIR%/}"
+if [ -n "$CONTAINER_OUTPUT_DIR" ]; then
+    download_dir="${CONTAINER_OUTPUT_DIR%/}"
     echo "using ${download_dir}"
 fi
 if [ -n "$REALDEBRID_APIKEY" ]; then
-    authtoken="$REALDEBRID_APIKEY"
+    authtoken="${REALDEBRID_APIKEY}"
 else
     echo "No API token found. Please either create a .secret file or export the REALDEBRID_APIKEY environment variable."
     exit 1

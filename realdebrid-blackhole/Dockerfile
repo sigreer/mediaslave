@@ -20,7 +20,7 @@ RUN adduser -D -u 568 apps
 USER apps
 
 # Copy your shell script into the container
-COPY --chown=apps:apps torrent2debrid.sh /usr/local/bin/torrent2debrid.sh
+COPY --chown=apps:apps realdebrid-blackhole.sh /usr/local/bin/realdebrid-blackhole.sh
 
 # Copy the transmission-show binary to /usr/local/bin
 
@@ -28,16 +28,13 @@ COPY --chown=apps:apps torrent2debrid.sh /usr/local/bin/torrent2debrid.sh
 USER root
 
 # Make the script executable
-RUN chmod u+x /usr/local/bin/torrent2debrid.sh
+RUN chmod u+x /usr/local/bin/realdebrid-blackhole.sh
 
 # Set the user to 'apps' for running the container
 USER apps
 
 # Set the working directory
 WORKDIR /data
-
-# Export the REALDEBRID_APIKEY for use in the script
-ENV REALDEBRID_APIKEY=""
 
 # Set the PATH to include /usr/bin and /usr/local/bin
 ENV PATH="/usr/local/bin:/usr/bin:${PATH}"
@@ -46,9 +43,9 @@ ENV PATH="/usr/local/bin:/usr/bin:${PATH}"
 SHELL ["/bin/bash", "-c"]
 
 # Command to check for existing torrent files and then watch for new ones
-CMD find /data/torrentfiles -type f -name '*.torrent' -exec /usr/local/bin/torrent2debrid.sh {} /data/downloaded-torrents \; && \
-inotifywait -m -e create /data/torrentfiles --format '%f' --exclude '.*[^.torrent]$' | \
+CMD find ${CONTAINER_TORRENTFILE_DIR} -type f -name '*.torrent' -exec /usr/local/bin/realdebrid-blackhole.sh {} ${CONTAINER_OUTPUT_DIR} \; && \
+inotifywait -m -e create ${CONTAINER_TORRENTFILE_DIR} --format '%f' --exclude '.*[^.torrent]$' | \
 while read torrentfile; do \
-    /usr/local/bin/torrent2debrid.sh "/data/torrentfiles/$torrentfile" "/data/downloaded-torrents" \
+    /usr/local/bin/realdebrid-blackhole.sh "${CONTAINER_TORRENTFILE_DIR}/${torrentfile}" "${CONTAINER_OUTPUT_DIR}" \
     >> /proc/1/fd/1 2>> /proc/1/fd/2; \
 done

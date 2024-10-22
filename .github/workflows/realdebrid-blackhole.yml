@@ -7,12 +7,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build rdb blackhole image
-      run: docker build realdebrid-blackhole --file realdebrid-blackhole/Dockerfile --tag realdebrid-blackhole:0.1.0
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository }}:latest .
+      - name: Push Docker image to GitHub Container Registry
+        run: docker push ghcr.io/${{ github.repository }}:latest

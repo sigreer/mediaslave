@@ -18,6 +18,7 @@ valid_extensions=("mp4" "mov" "m4a" "mkv" "avi" "flv" "wmv" "mpg" "mpeg" "webm" 
 verbosity=2
 declare log_file_writable=false
 
+
 # Function to log messages based on verbosity level
 logthis() {
     local level=$1
@@ -109,24 +110,31 @@ config() {
     if [[ -n "${LOCAL_FILE_EXISTS_ACTION}" ]]; then
         local_file_exists_action="${LOCAL_FILE_EXISTS_ACTION}"
     fi
+    if [[ -n "${KEEP_SOURCE_FILE}" ]]; then
+        keep_source_file="${KEEP_SOURCE_FILE}"
+    fi
   fi
   hostname=$(hostname)
   if [[ -z $node_name ]]; then
     node_name=$hostname
   fi
-    echo "Node:                 ${node_name}"
-    echo "Log to file:          ${log_to_file}"
-    echo "Log file path:        ${log_file}"
+    echo "Node:                         ${node_name}"
+    echo "Log to file:                  ${log_to_file}"
+    echo "Log file path:"
+    echo "  ${log_file}"
     : "${transcode_fail_action:=exit}"
-    echo "On transcode fail:    ${transcode_fail_action}"
+    echo "On transcode fail:            ${transcode_fail_action}"
     : "${rsync_send_fail_action:=keep_local_and_exit}"
-    echo "On file send fail:    ${rsync_send_fail_action}"
+    echo "On file send fail:            ${rsync_send_fail_action}"
     : "${rsync_receive_fail_action:=exit}"
-    echo "On file receive fail: ${rsync_receive_fail_action}"
+    echo "On file receive fail:         ${rsync_receive_fail_action}"
     : "${transcoding_directory:=$HOME/transcodes}"
-    echo "Local transcode dir:  ${transcoding_directory}"
+    echo "Local transcode dir:"
+    echo "  ${transcoding_directory}"
     : "${local_file_exists_action:=delete_local}"
-    echo "If local file exists: ${local_file_exists_action}"
+    echo "If local file exists:         ${local_file_exists_action}"
+    : "${keep_source_file:=false}"
+    echo "Keep source after transcode:  ${keep_source_file}"   
     echo ""
     echo "exit the script now if any of these values are incorrect"
 }
@@ -419,6 +427,9 @@ convert_from_master_list() {
         logthis 1 "Transcode function returned with status: $transcode_status"
         if [ $transcode_status -eq 0 ]; then
             remove_from_master_list "$file"
+            if [ "$keep_source_file" = false ]; then
+                source_cleanup "$file"
+            fi
         else
             logthis 2 "Transcode may have failed for file: $file"
         fi
@@ -447,6 +458,9 @@ convert_from_master_list() {
 convert_single_file() {
     local file_path="$1"
     transcode_file "$file_path"
+    if [ "$keep_source_file" = false ]; then
+        source_cleanup "$file_path"
+    fi
 }
 
 # Function to handle the 'convertdir' command
@@ -473,6 +487,9 @@ convert_directory() {
             logthis 2 "Transcode may have failed for file: $file"
             exit 1 
         fi
+        if [ "$keep_source_file" = false ]; then
+            source_cleanup "$file"
+        fi
     done
 
     rm -f "$convertdir_list"  # Clean up temporary file
@@ -497,12 +514,19 @@ case "$command" in
         while [[ "$#" -gt 0 ]]; do
             case $1 in
                 --starts-with=*) starts_with="${1#*=}"; shift ;;
+                --keep-source-file) keep_source_file=true; shift ;;
                 *) echo "Unknown option: $1"; exit 1 ;;
             esac
         done
         convert_from_master_list
         ;;
     convertfile)
+        while [[ "$#" -gt 0 ]]; do
+            case $1 in
+                --keep-source-file) keep_source_file=true; shift ;;
+                *) echo "Unknown option: $1"; exit 1 ;;
+            esac
+        done
         if [[ -f "$1" ]]; then
             convert_single_file "$1"
         else
@@ -511,6 +535,12 @@ case "$command" in
         fi
         ;;
     convertdir)
+        while [[ "$#" -gt 0 ]]; do
+            case $1 in
+                --keep-source-file) keep_source_file=true; shift ;;
+                *) echo "Unknown option: $1"; exit 1 ;;
+            esac
+        done
         if [[ -d "$1" ]]; then
             convert_directory "$1"
         else
@@ -539,6 +569,7 @@ trap handle_sigint SIGINT
 
 # Set trap to call worker_cleanup function on script exit
 trap worker_cleanup EXIT
+
 
 
 
